@@ -1,43 +1,41 @@
 # GitHub Copilot Instructions
 
 ## Project Overview
-This repository is a small **Book Library REST API** built with **FastAPI** and **Python 3.13**.
-It manages a personal reading list with CRUD endpoints and a small statistics endpoint.
+This repository is a small **Book Library REST API** built with FastAPI and Python 3.13.
+It manages a personal reading list with CRUD endpoints and a statistics endpoint.
 
-## Architecture
-- `src/app.py` creates the FastAPI app instance.
-- `src/api.py` defines endpoints on the shared `app`.
-- `src/models.py` contains Pydantic models and the `BookStatus` enum.
-- `src/storage.py` owns the in-memory store and business logic.
-- `src/seed.py` seeds sample data through the FastAPI lifespan hook.
-- `src/__tests__/test_app.py` contains integration-style pytest coverage.
+## Tech Stack
+- **Runtime**: Python 3.13
+- **Framework**: FastAPI
+- **Models/Validation**: Pydantic v2
+- **Testing**: pytest with FastAPI's `TestClient`
+- **Storage**: In-memory (no database)
 
-## Repository Rules
-- Keep route handlers thin. Put business logic, mutations, and aggregate calculations in `src/storage.py`.
+## Project Structure
+- `src/app.py` — creates the FastAPI app instance
+- `src/api.py` — defines all route handlers on the shared `app`
+- `src/models.py` — Pydantic models and the `BookStatus` enum
+- `src/storage.py` — in-memory store and all business logic
+- `src/seed.py` — seeds sample data via the FastAPI lifespan hook
+- `src/__tests__/test_app.py` — integration-style pytest coverage
+
+## Coding Guidelines
+- Keep route handlers thin. All business logic, mutations, and aggregate calculations belong in `src/storage.py`.
 - Keep data models in `src/models.py`.
-- Preserve the current in-memory storage approach unless a task explicitly asks for persistence.
 - Use modern Python syntax and type hints everywhere.
-- Follow the existing import style used by the project (`import storage`, `from models import ...`, `from app import app`).
+- Follow the existing import style: `import storage`, `from models import ...`, `from app import app`.
 - Use `BookStatus` values exactly as defined: `want-to-read`, `reading`, `finished`.
-- Book IDs should remain string UUIDs generated with `str(uuid4())`.
-
-## API Behavior
-- Missing books should raise `HTTPException(status_code=404, detail="Book not found")`.
+- Generate book IDs with `str(uuid4())`.
+- Missing books must raise `HTTPException(status_code=404, detail="Book not found")`.
 - Preserve existing response shapes unless the task explicitly changes the API contract.
-- `/stats` currently returns `total`, `by_status`, and `finished_percentage`.
+- `/stats` returns `total`, `by_status`, and `finished_percentage`.
+- Preserve the in-memory storage design unless the task explicitly asks for persistence.
 
-## Testing Expectations
-- Keep tests in `src/__tests__/`.
-- Prefer integration-style tests with `TestClient`.
-- Do not mock the storage layer for normal endpoint tests.
-- Reset shared state between tests so each test stays independent.
+## Testing & Documentation
+- Keep tests in `src/__tests__/` using integration-style `TestClient` tests.
+- Do not mock the storage layer — mocks can mask real integration failures.
+- Reset shared state between tests so each test is independent.
 - When changing API behavior, update or add tests in the same change.
-
-## Documentation Expectations
-- Update `README.md` when endpoints, payloads, setup, or behavior change.
-- Keep examples aligned with the actual API and current test coverage.
-
-## Working Style
-- Read the related model, storage, route, and test files before editing.
-- Make surgical changes that match the current structure.
-- Run `pytest` after changes that affect code or runtime behavior.
+- Prefer passing tests over speculative refactors.
+- Run `pytest` after any change that affects runtime behavior.
+- Update `README.md` when endpoints, payloads, setup, or behavior change, keeping examples aligned with actual behavior.
