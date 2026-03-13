@@ -11,7 +11,7 @@ pip install -r requirements.txt
 ## Running
 
 ```bash
-uvicorn src.app:app --reload
+uvicorn src.api:app --reload
 ```
 
 ## Testing
