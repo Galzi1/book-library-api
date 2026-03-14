@@ -10,8 +10,12 @@ client = TestClient(app)
 @pytest.fixture(autouse=True)
 def clear_books():
     storage.books.clear()
+    storage.reviews.clear()
+    storage.sessions.clear()
     yield
     storage.books.clear()
+    storage.reviews.clear()
+    storage.sessions.clear()
 
 
 def test_create_book():
@@ -60,3 +64,7 @@ def test_get_stats():
     assert "total" in data
     assert "by_status" in data
     assert "finished_percentage" in data
+    assert data["average_rating"] is None
+
+
+

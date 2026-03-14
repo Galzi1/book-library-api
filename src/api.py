@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
 import storage
-from models import Book, BookCreate
+from models import Book, BookCreate, Review, ReviewCreate, ReadingSession, ReadingSessionCreate
 from app import app
 
 
@@ -37,6 +37,40 @@ def delete_book(book_id: str) -> dict:
     if not deleted:
         raise HTTPException(status_code=404, detail="Book not found")
     return {"deleted": True}
+
+
+@app.get("/books/{book_id}/reviews", response_model=list[Review])
+def get_reviews(book_id: str) -> list[Review]:
+    book_reviews = storage.list_reviews(book_id)
+    if book_reviews is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return book_reviews
+
+
+@app.post("/books/{book_id}/reviews", response_model=Review)
+def add_review(book_id: str, data: ReviewCreate) -> Review:
+    review = storage.create_review(book_id, data)
+    if review is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return review
+
+
+@app.get("/books/{book_id}/sessions", response_model=list[ReadingSession])
+def list_sessions(book_id: str) -> list[ReadingSession]:
+    """List all reading sessions recorded for a book."""
+    result = storage.list_sessions(book_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return result
+
+
+@app.post("/books/{book_id}/sessions", response_model=ReadingSession)
+def add_session(book_id: str, data: ReadingSessionCreate) -> ReadingSession:
+    """Record a new reading session for a book."""
+    session = storage.create_session(book_id, data)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return session
 
 
 @app.get("/stats")
